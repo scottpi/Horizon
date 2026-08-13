@@ -12,6 +12,10 @@ from ..models import ContentItem
 
 _CJK = r"[\u4e00-\u9fff\u3400-\u4dbf]"
 _ASCII = r"[A-Za-z0-9]"
+_DE_MONTHS = [
+    "Jan", "Feb", "M\u00e4r", "Apr", "Mai", "Jun",
+    "Jul", "Aug", "Sep", "Okt", "Nov", "Dez",
+]
 _MARKDOWN_SPECIAL = re.compile(r"([\\`*_{}\[\]()<>#!|])")
 _MARKDOWN_BLOCK_START = re.compile(r"(?m)^( {0,3})(>|[-+] |\d+[.)] )")
 _URL_SAFE_CHARS = ":/?#[]@!$&'*,;=~%+"
@@ -86,6 +90,26 @@ LABELS = {
             "1. 降低当前 Profile 的过滤阈值\n"
             "2. 添加更多多样化的信息源\n"
             "3. 检查 AI 模型是否正常工作\n"
+        ),
+    },
+    "de": {
+        "header": "Horizon Daily",
+        "source": "Quelle",
+        "background": "Hintergrund",
+        "discussion": "Diskussion",
+        "references": "Quellen",
+        "tags": "Tags",
+        "selected_items": "Aus {total} Beiträgen wurden {selected} wichtige Inhalte ausgewählt",
+        "empty_analyzed": "{total} Beiträge analysiert, aber keiner hat die Relevanzschwelle erreicht.",
+        "empty_body": (
+            "Heute keine nennenswerten Entwicklungen. Mögliche Gründe:\n"
+            "- Ein ruhiger Tag in den verfolgten Quellen\n"
+            "- Die KI-Bewertungsschwelle ist zu hoch\n"
+            "- Die Informationsquellen sollten erweitert werden\n\n"
+            "Mögliche nächste Schritte:\n"
+            "1. Den konfigurierten Profil-Schwellenwert senken\n"
+            "2. Weitere, vielfältigere Quellen hinzufügen\n"
+            "3. Prüfen, ob das KI-Modell korrekt funktioniert\n"
         ),
     },
 }
@@ -405,6 +429,10 @@ class DailySummarizer:
                     f"{item.published_at.month}月{item.published_at.day}日 "
                     f"{item.published_at:%H:%M}"
                 )
+            elif language == "de":
+                day = item.published_at.strftime("%d").lstrip("0")
+                month = _DE_MONTHS[item.published_at.month - 1]
+                source_parts.append(f"{day}. {month} {item.published_at:%H:%M}")
             else:
                 day = item.published_at.strftime("%d").lstrip("0")
                 source_parts.append(item.published_at.strftime(f"%b {day}, %H:%M"))

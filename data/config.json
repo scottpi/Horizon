@@ -1,0 +1,563 @@
+{
+  "ai": {
+    "provider": "gemini",
+    "provider_chain": null,
+    "model": "gemini-3.5-flash-lite",
+    "base_url": null,
+    "api_key_env": "GOOGLE_API_KEY",
+    "temperature": 0.3,
+    "max_tokens": 8192,
+    "throttle_sec": 8.5,
+    "analysis_concurrency": 1,
+    "enrichment_concurrency": 1,
+    "languages": [
+      "de"
+    ],
+    "azure_endpoint_env": null,
+    "api_version": null
+  },
+  "sources": {
+    "hackernews": {
+      "enabled": true,
+      "fetch_top_stories": 30,
+      "min_score": 100,
+      "category": null,
+      "profile": null
+    },
+    "rss": [
+      {
+        "name": "heise",
+        "url": "https://www.heise.de/rss/heise-atom.xml",
+        "enabled": true,
+        "category": "tech-de",
+        "max_items": 50
+      },
+      {
+        "name": "faz",
+        "url": "https://www.faz.net/rss/aktuell",
+        "enabled": true,
+        "category": "news-de",
+        "max_items": 50
+      },
+      {
+        "name": "tagesschau",
+        "url": "https://www.tagesschau.de/xml/rss2/",
+        "enabled": true,
+        "category": "news-de",
+        "max_items": 50
+      },
+      {
+        "name": "Anavem.com",
+        "url": "https://www.anavem.com/en/rss.xml",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "AINews (Buttondown)",
+        "url": "https://buttondown.com/ainews/rss",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "The Economist",
+        "url": "https://www.economist.com/latest/rss.xml",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Last Week in AI",
+        "url": "https://lastweekin.ai/feed",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "The Pragmatic Engineer",
+        "url": "https://newsletter.pragmaticengineer.com/feed",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "BBC Learning English",
+        "url": "http://www.bbc.co.uk/learningenglish/english/features/6-minute-english/rss",
+        "enabled": true,
+        "category": "",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "navanem.com",
+        "url": "https://www.navanem.com/feeds/news.xml",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Lilian Weng",
+        "url": "https://lilianweng.github.io/index.xml",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Lobsters",
+        "url": "https://lobste.rs/rss",
+        "enabled": true,
+        "category": "tech",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Schneier on Security",
+        "url": "https://www.schneier.com/feed/atom/",
+        "enabled": true,
+        "category": "security",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Krebs on Security",
+        "url": "https://krebsonsecurity.com/feed/",
+        "enabled": true,
+        "category": "security",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "量子位",
+        "url": "https://wechat2rss.xlab.app/feed/7131b577c61365cb47e81000738c10d872685908.xml",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "新智元",
+        "url": "https://wechat2rss.xlab.app/feed/ede30346413ea70dbef5d485ea5cbb95cca446e7.xml",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Interconnects",
+        "url": "https://www.interconnects.ai/feed",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Simon Willison",
+        "url": "https://simonwillison.net/atom/everything/",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "BAIR Blog",
+        "url": "https://bair.berkeley.edu/blog/feed.xml",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "The Gradient",
+        "url": "https://thegradient.pub/rss/",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Chip Huyen",
+        "url": "https://huyenchip.com/feed.xml",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Jay Alammar",
+        "url": "https://jalammar.github.io/feed.xml",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Ahead of AI (Sebastian Raschka)",
+        "url": "https://magazine.sebastianraschka.com/feed",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Stanford AI Lab (SAIL) Blog",
+        "url": "https://ai.stanford.edu/blog/feed.xml",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "AI Weekly",
+        "url": "https://aiweekly.co/issues.rss",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "MIT News - AI",
+        "url": "https://news.mit.edu/topic/mitartificial-intelligence2-rss.xml",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Google Research Blog",
+        "url": "https://blog.research.google/atom.xml",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "ruanyifeng",
+        "url": "https://www.ruanyifeng.com/blog/atom.xml",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Microsoft Research",
+        "url": "https://www.microsoft.com/en-us/research/feed/",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "AWS Machine Learning Blog",
+        "url": "https://aws.amazon.com/blogs/machine-learning/feed/",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Google Blog",
+        "url": "https://blog.google/feed/",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "NVIDIA Developer Blog",
+        "url": "https://developer.nvidia.com/blog/feed",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Hugging Face Blog",
+        "url": "https://huggingface.co/blog/feed.xml",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Product Hunt",
+        "url": "https://www.producthunt.com/feed",
+        "enabled": true,
+        "category": "ai",
+        "content_extractor": null,
+        "profile": null
+      },
+      {
+        "name": "Quanta Magazine",
+        "url": "https://www.quantamagazine.org/feed/",
+        "enabled": true,
+        "category": "science",
+        "profile": "science"
+      },
+      {
+        "name": "Spektrum",
+        "url": "https://www.spektrum.de/alias/rss/spektrum-de-rss-feed/996406",
+        "enabled": true,
+        "category": "science",
+        "profile": "science"
+      },
+      {
+        "name": "Ars Technica",
+        "url": "https://feeds.arstechnica.com/arstechnica/index",
+        "enabled": true,
+        "category": "science",
+        "profile": "science"
+      },
+      {
+        "name": "IEEE Spectrum",
+        "url": "https://spectrum.ieee.org/feeds/feed.rss",
+        "enabled": true,
+        "category": "science",
+        "profile": "science"
+      }
+    ],
+    "reddit": {
+      "enabled": true,
+      "subreddits": [
+        {
+          "subreddit": "technology",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 60,
+          "category": null,
+          "profile": null
+        },
+        {
+          "subreddit": "netsec",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 60,
+          "category": null,
+          "profile": null
+        },
+        {
+          "subreddit": "cybersecurity",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 60,
+          "category": null,
+          "profile": null
+        },
+        {
+          "subreddit": "selfhosted",
+          "sort": "hot",
+          "fetch_limit": 25,
+          "min_score": 50,
+          "category": "tech"
+        },
+        {
+          "subreddit": "devops",
+          "sort": "top",
+          "fetch_limit": 25,
+          "min_score": 30,
+          "category": "tech"
+        },
+        {
+          "subreddit": "webdev",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 60,
+          "category": null,
+          "profile": null
+        },
+        {
+          "subreddit": "indiehackers",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 60,
+          "category": null,
+          "profile": null
+        },
+        {
+          "subreddit": "opensource",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 60,
+          "category": "oss-trending",
+          "profile": null
+        },
+        {
+          "subreddit": "EverythingScience",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 25,
+          "min_score": 200,
+          "category": "science",
+          "profile": "science"
+        },
+        {
+          "subreddit": "space",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 500,
+          "category": "space",
+          "profile": "science"
+        }
+      ],
+      "users": [],
+      "fetch_comments": 10
+    },
+    "telegram": {
+      "enabled": false,
+      "channels": []
+    },
+    "twitter": null,
+    "openbb": null,
+    "ossinsight": {
+      "enabled": true,
+      "period": "past_24_hours",
+      "languages": [
+        "All",
+        "Python",
+        "Go",
+        "Rust"
+      ],
+      "keywords": [],
+      "min_stars": 50,
+      "max_items": 30,
+      "category": "oss-trending",
+      "profile": null
+    },
+    "gdelt": null,
+    "google_news": null,
+    "github": [
+      {
+        "type": "repo_releases",
+        "owner": "grafana",
+        "repo": "loki",
+        "enabled": true,
+        "category": "oss-stack"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "grafana",
+        "repo": "alloy",
+        "enabled": true,
+        "category": "oss-stack"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "keycloak",
+        "repo": "keycloak",
+        "enabled": true,
+        "category": "oss-stack"
+      }
+    ]
+  },
+  "collection": {
+    "time_window_hours": 24
+  },
+  "digest": {
+    "max_items": 20,
+    "category_groups": {
+      "aufmacher": {
+        "name": "Top",
+        "limit": 4,
+        "categories": [
+          "news-de"
+        ]
+      },
+      "tech": {
+        "name": "Tech",
+        "limit": 5,
+        "categories": [
+          "tech",
+          "tech-de",
+          "security"
+        ]
+      },
+      "ai": {
+        "name": "KI & Blogs",
+        "limit": 6,
+        "categories": [
+          "ai"
+        ]
+      },
+      "oss": {
+        "name": "OSS Trending",
+        "limit": 3,
+        "categories": [
+          "oss-trending"
+        ]
+      },
+      "stack": {
+        "name": "Mein Stack",
+        "limit": 3,
+        "categories": [
+          "oss-stack"
+        ]
+      },
+      "science": {
+        "name": "Forschung",
+        "limit": 5,
+        "categories": [
+          "science",
+          "space"
+        ]
+      }
+    },
+    "default_group": "vermischtes",
+    "default_group_limit": 3,
+    "profile_order": [
+      "tech-news",
+      "tech-blog",
+      "finance-news",
+      "science"
+    ]
+  },
+  "processing": {
+    "profiles_dir": "profiles",
+    "default_profile": "tech-news",
+    "profile_settings": {
+      "tech-news": {
+        "threshold": 7.0,
+        "topic_dedup": true
+      },
+      "tech-blog": {
+        "threshold": 4.0,
+        "topic_dedup": false
+      },
+      "finance-news": {
+        "threshold": 7.0,
+        "topic_dedup": true
+      },
+      "science": {
+        "threshold": 7.5,
+        "topic_dedup": true
+      }
+    }
+  },
+  "display": {
+    "icon_style": "emoji"
+  },
+  "extractors": {},
+  "email": null,
+  "webhook": null
+}
