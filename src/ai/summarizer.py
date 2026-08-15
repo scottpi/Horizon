@@ -3,7 +3,7 @@
 import html
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from urllib.parse import quote, urlsplit
 
 from .localization import normalize_language
@@ -59,6 +59,7 @@ LABELS = {
         "discussion": "Discussion",
         "references": "References",
         "tags": "Tags",
+        "in_brief": "In Brief",
         "selected_items": "From {total} items, {selected} important content pieces were selected",
         "empty_analyzed": "Analyzed {total} items, but none met the importance threshold.",
         "empty_body": (
@@ -79,6 +80,7 @@ LABELS = {
         "discussion": "社区讨论",
         "references": "参考链接",
         "tags": "标签",
+        "in_brief": "简讯",
         "selected_items": "从 {total} 条内容中筛选出 {selected} 条重要资讯。",
         "empty_analyzed": "已分析 {total} 条内容，但没有达到重要性阈值的条目。",
         "empty_body": (
@@ -99,6 +101,7 @@ LABELS = {
         "discussion": "Diskussion",
         "references": "Quellen",
         "tags": "Tags",
+        "in_brief": "In Kürze",
         "selected_items": "Aus {total} Beiträgen wurden {selected} wichtige Inhalte ausgewählt",
         "empty_analyzed": "{total} Beiträge analysiert, aber keiner hat die Relevanzschwelle erreicht.",
         "empty_body": (
@@ -237,6 +240,8 @@ class DailySummarizer:
         date: str,
         total_fetched: int,
         language: str = "en",
+        short_items: Optional[List[ContentItem]] = None,
+        short_translations: Optional[Dict[str, Tuple[str, str]]] = None,
     ) -> str:
         """Generate daily summary in Markdown format.
 
@@ -247,6 +252,10 @@ class DailySummarizer:
             date: Date string (YYYY-MM-DD)
             total_fetched: Total number of items fetched before filtering
             language: Output language, either "en" or "zh"
+            short_items: Eligible but un-enriched items shown as brief entries
+            short_translations: {item_id: (title, summary)} localized text for
+                short_items; falls back to the item's own title/analysis summary
+                when an id is missing (e.g. localization failed)
 
         Returns:
             str: Markdown formatted summary
@@ -295,7 +304,63 @@ class DailySummarizer:
             )
 
         toc = "\n\n".join(toc_sections) + "\n\n---\n\n"
-        return normalize_language(header + toc + "".join(body_sections), language)
+
+        short_section = ""
+        if short_items:
+            translations = short_translations or {}
+            short_lines = [
+                self._format_short_item(item, language, translations)
+                for item in short_items
+            ]
+            short_section = (
+                f"## {_escape_markdown(labels['in_brief'])}\n\n"
+                + "\n".join(short_lines)
+                + "\n\n"
+            )
+
+        return normalize_language(
+            header + toc + "".join(body_sections) + short_section, language
+        )
+
+    def _format_short_item(
+        self,
+        item: ContentItem,
+        language: str,
+        translations: Dict[str, Tuple[str, str]],
+    ) -> str:
+        """Render one brief, un-enriched entry for the "in brief" section."""
+        analysis = item.processing.analysis if item.processing else None
+        translated = translations.get(item.id)
+        title_text = translated[0] if translated else item.title
+        summary_text = translated[1] if translated else (
+            analysis.summary if analysis else ""
+        )
+
+        title = _escape_markdown(title_text)
+        summary = _escape_markdown(summary_text)
+        if language == "zh":
+            title = _pangu(title)
+            summary = _pangu(summary)
+
+        url = _safe_url(str(item.url))
+        title_link = f"[{title}]({url})" if url else title
+        score = (
+            analysis.score if analysis and analysis.score is not None else "?"
+        )
+
+        meta = item.metadata
+        source_parts = [_escape_markdown(item.source_type.value)]
+        if meta.get("subreddit"):
+            source_parts.append(_escape_markdown(f"r/{meta['subreddit']}"))
+        elif meta.get("feed_name"):
+            source_parts.append(_escape_markdown(meta["feed_name"]))
+        source_line = " · ".join(source_parts)
+
+        line = f"- **{title_link}** ⭐️ {score}/10"
+        if summary.strip():
+            line += f" — {summary}"
+        line += f"  \n  _{source_line}_\n"
+        return line
 
     def generate_webhook_overview(
         self,

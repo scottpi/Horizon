@@ -5,7 +5,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Dict, List, Literal, Optional
+from typing import Dict, List, Literal, Optional, Tuple
 from urllib.parse import unquote_plus, urlsplit
 import httpx
 from rich.console import Console
@@ -30,6 +30,7 @@ from .ai.client import create_ai_client
 from .ai.analyzer import ContentAnalyzer
 from .ai.summarizer import DailySummarizer
 from .ai.enricher import ContentEnricher, EnrichmentBatchResult
+from .ai.short_items import localize_short_items as _localize_short_items
 from .ai.tokens import get_usage_snapshot
 from .processing import ProfileRegistry
 
@@ -99,6 +100,7 @@ class FilteringPipelineResult:
     topic_dedup_removed: int
     balanced_digest: BalancedDigestResult
     eligible_count: Optional[int] = None
+    short_items: List[ContentItem] = field(default_factory=list)
 
 
 @dataclass
@@ -278,6 +280,7 @@ class HorizonOrchestrator:
                 analyzed_items,
             )
             important_items = filtering_result.items
+            short_items = filtering_result.short_items
 
             # Show per-sub-source selection breakdown
             selected_counts: Dict[str, int] = defaultdict(int)
@@ -289,16 +292,26 @@ class HorizonOrchestrator:
             self.console.print("")
 
             # 6. Search related stories + enrich with background knowledge (2nd AI pass)
+            # short_items intentionally skip enrichment: they're rendered as
+            # brief, un-enriched "in brief" entries to keep cost down.
             await self.enrich_items(important_items)
 
             # 7. Generate and save daily summaries for each configured language
             today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
             for lang in self.config.ai.languages:
+                short_translations = await self.localize_short_items(short_items, lang)
                 summarizer = DailySummarizer(
                     profile_names=self.profiles.names,
                     profile_order=self.config.digest.profile_order,
                 )
-                summary = await summarizer.generate_summary(important_items, today, len(all_items), language=lang)
+                summary = await summarizer.generate_summary(
+                    important_items,
+                    today,
+                    len(all_items),
+                    language=lang,
+                    short_items=short_items,
+                    short_translations=short_translations,
+                )
 
                 # Save to data/summaries/
                 summary_path = self.storage.save_daily_summary(today, summary, language=lang)
@@ -810,6 +823,13 @@ class HorizonOrchestrator:
             reverse=True,
         )
         balanced = self.apply_balanced_digest(eligible, log=log)
+
+        selected_ids = {item.id for item in balanced.items}
+        short_items = [item for item in eligible if item.id not in selected_ids]
+        short_limit = self.config.digest.short_items_limit
+        if short_limit is not None:
+            short_items = short_items[:short_limit]
+
         return FilteringPipelineResult(
             items=balanced.items,
             threshold_count=initial.threshold_count,
@@ -817,6 +837,7 @@ class HorizonOrchestrator:
             topic_dedup_removed=initial.topic_dedup_removed,
             balanced_digest=balanced,
             eligible_count=len(eligible),
+            short_items=short_items,
         )
 
     def passes_profile_filter(
@@ -1009,6 +1030,15 @@ class HorizonOrchestrator:
         ai_client = create_ai_client(self.config.ai)
         analyzer = ContentAnalyzer(ai_client, self.profiles, console=self.console)
         await analyzer.analyze_batch(expanded)
+
+    async def localize_short_items(
+        self, items: List[ContentItem], language: str
+    ) -> Dict[str, Tuple[str, str]]:
+        """Batched (one-call) localization for brief, un-enriched digest items."""
+        if not items:
+            return {}
+        ai_client = create_ai_client(self.config.ai)
+        return await _localize_short_items(items, language, ai_client)
 
     async def enrich_items(self, items: List[ContentItem]) -> EnrichmentBatchResult:
         """Enrich items with background knowledge (2nd AI pass).

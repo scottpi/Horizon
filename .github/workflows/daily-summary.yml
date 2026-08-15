@@ -37,6 +37,10 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           # Built-in token, raises the GitHub API rate limit for the repo_releases sources
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Reddit OAuth app-only auth; anonymous scraping gets 403'd more often
+          # from shared runner IPs. Must match data/config.json: sources.reddit.*_env
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
         run: uv run horizon --hours 24
 
       - name: Set current date as environment variable

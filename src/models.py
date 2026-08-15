@@ -296,6 +296,10 @@ class RedditConfig(BaseModel):
     subreddits: List[RedditSubredditConfig] = Field(default_factory=list)
     users: List[RedditUserConfig] = Field(default_factory=list)
     fetch_comments: int = 5  # top comments per post, 0 to disable
+    # Optional OAuth app-only auth (script app, client_credentials grant).
+    # Falls back to anonymous scraping when unset or when the token request fails.
+    client_id_env: Optional[str] = None
+    client_secret_env: Optional[str] = None
 
 
 class TelegramChannelConfig(BaseModel):
@@ -589,6 +593,9 @@ class DigestConfig(BaseModel):
     default_group: str = "other"
     default_group_limit: Optional[int] = Field(default=None, gt=0)
     profile_order: List[str] = Field(default_factory=list)
+    # Eligible items that didn't make the main digest are shown as brief,
+    # un-enriched "in brief" entries instead of being dropped outright.
+    short_items_limit: Optional[int] = Field(default=None, gt=0)
 
     @field_validator("profile_order")
     @classmethod

@@ -7,7 +7,7 @@
     "api_key_env": "GOOGLE_API_KEY",
     "temperature": 0.3,
     "max_tokens": 8192,
-    "throttle_sec": 8.5,
+    "throttle_sec": 0.05,
     "analysis_concurrency": 1,
     "enrichment_concurrency": 1,
     "languages": [
@@ -422,7 +422,9 @@
         }
       ],
       "users": [],
-      "fetch_comments": 10
+      "fetch_comments": 10,
+      "client_id_env": "REDDIT_CLIENT_ID",
+      "client_secret_env": "REDDIT_CLIENT_SECRET"
     },
     "telegram": {
       "enabled": false,
@@ -530,7 +532,8 @@
       "tech-blog",
       "finance-news",
       "science"
-    ]
+    ],
+    "short_items_limit": 15
   },
   "processing": {
     "profiles_dir": "profiles",

@@ -3,7 +3,9 @@
 import asyncio
 import calendar
 import logging
+import os
 import re
+import time
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Any, List, Optional, cast
@@ -26,6 +28,11 @@ logger = logging.getLogger(__name__)
 
 REDDIT_BASE = "https://www.reddit.com"
 OLD_REDDIT_BASE = "https://old.reddit.com"
+OAUTH_BASE = "https://oauth.reddit.com"
+OAUTH_TOKEN_URL = "https://www.reddit.com/api/v1/access_token"
+# Reddit API rules require a descriptive, unique User-Agent for OAuth requests
+# (distinct from the browser-spoofed one used for anonymous scraping below).
+OAUTH_USER_AGENT = "horizon-news-digest/1.0 (script app, read-only)"
 USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
     "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -51,6 +58,52 @@ class RedditScraper(BaseScraper):
         super().__init__(config.model_dump(), http_client)
         self.reddit_config = config
         self._comment_semaphore = asyncio.Semaphore(MAX_COMMENT_CONCURRENCY)
+        self._oauth_token: Optional[str] = None
+        self._oauth_token_expires: float = 0.0
+        self._oauth_lock = asyncio.Lock()
+
+    async def _get_oauth_token(self) -> Optional[str]:
+        """Fetch (and cache) an app-only OAuth token, or None if not configured/failing."""
+        cfg = self.reddit_config
+        if not (cfg.client_id_env and cfg.client_secret_env):
+            return None
+
+        async with self._oauth_lock:
+            if self._oauth_token and time.monotonic() < self._oauth_token_expires:
+                return self._oauth_token
+
+            client_id = os.getenv(cfg.client_id_env)
+            client_secret = os.getenv(cfg.client_secret_env)
+            if not client_id or not client_secret:
+                return None
+
+            try:
+                response = await self.client.post(
+                    OAUTH_TOKEN_URL,
+                    data={"grant_type": "client_credentials"},
+                    auth=(client_id, client_secret),
+                    headers={"User-Agent": OAUTH_USER_AGENT},
+                )
+                response.raise_for_status()
+                data = response.json()
+                token = data.get("access_token")
+                if not token:
+                    return None
+                self._oauth_token = token
+                self._oauth_token_expires = (
+                    time.monotonic() + max(int(data.get("expires_in", 3600)) - 60, 60)
+                )
+                return token
+            except httpx.HTTPError as e:
+                logger.warning("Reddit OAuth token request failed: %s", e)
+                return None
+
+    def _oauth_headers(self, token: str) -> dict:
+        return {
+            "Authorization": f"Bearer {token}",
+            "User-Agent": OAUTH_USER_AGENT,
+            "Accept": "application/json",
+        }
 
     async def fetch(self, since: datetime) -> List[ContentItem]:
         if not self.config.get("enabled", True):
@@ -76,6 +129,16 @@ class RedditScraper(BaseScraper):
     async def _fetch_subreddit(
         self, cfg: RedditSubredditConfig, since: datetime
     ) -> List[ContentItem]:
+        token = await self._get_oauth_token()
+        if token:
+            oauth_items = await self._fetch_subreddit_oauth(cfg, since, token)
+            if oauth_items is not None:
+                return oauth_items
+            logger.warning(
+                "Reddit OAuth listing failed for r/%s; falling back to anonymous scraping",
+                cfg.subreddit,
+            )
+
         html_items = await self._fetch_subreddit_html(cfg, since)
         if html_items:
             return html_items
@@ -109,6 +172,40 @@ class RedditScraper(BaseScraper):
             posts,
             since,
             "subreddit",
+            cfg.subreddit,
+            cfg.min_score,
+            cfg.category,
+            cfg.profile,
+        )
+
+    async def _fetch_subreddit_oauth(
+        self, cfg: RedditSubredditConfig, since: datetime, token: str
+    ) -> Optional[List[ContentItem]]:
+        """Fetch via authenticated oauth.reddit.com. Returns None on failure (triggers fallback)."""
+        params: dict[str, Any] = {"limit": min(cfg.fetch_limit, 100), "raw_json": 1}
+        if cfg.sort in ("top", "controversial"):
+            params["t"] = cfg.time_filter
+
+        url = f"{OAUTH_BASE}/r/{cfg.subreddit}/{cfg.sort}"
+        try:
+            response = await self.client.get(
+                url, params=params, headers=self._oauth_headers(token)
+            )
+            response.raise_for_status()
+            data = response.json()
+        except httpx.HTTPError as e:
+            logger.warning("Reddit OAuth request failed for %s: %s", url, e)
+            return None
+
+        posts = [
+            child["data"]
+            for child in data.get("data", {}).get("children", [])
+            if child.get("kind") == "t3"
+        ]
+        return await self._process_posts(
+            posts,
+            since,
+            "subreddit-oauth",
             cfg.subreddit,
             cfg.min_score,
             cfg.category,
@@ -529,6 +626,24 @@ class RedditScraper(BaseScraper):
         )
 
     async def _reddit_get(self, url: str, params: dict) -> Optional[Any]:
+        token = await self._get_oauth_token()
+        if token:
+            oauth_url = url.replace(REDDIT_BASE, OAUTH_BASE, 1)
+            try:
+                response = await self.client.get(
+                    oauth_url, params=params, headers=self._oauth_headers(token)
+                )
+                if response.status_code != 401:
+                    response.raise_for_status()
+                    return response.json()
+                logger.info("Reddit OAuth token rejected (401); retrying anonymously")
+            except httpx.HTTPError as e:
+                logger.info(
+                    "Reddit OAuth request failed for %s: %s; retrying anonymously",
+                    oauth_url,
+                    e,
+                )
+
         try:
             response = await self.client.get(
                 url,
