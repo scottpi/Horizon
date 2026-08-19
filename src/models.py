@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from enum import Enum
 import re
 from typing import Annotated, Literal, Optional, List, Dict, Any, NamedTuple, Union
-from pydantic import BaseModel, ConfigDict, HttpUrl, Field, field_validator
+from pydantic import BaseModel, ConfigDict, HttpUrl, Field, field_validator, model_validator
 
 
 class SourceType(str, Enum):
@@ -545,7 +545,16 @@ class CategoryGroupConfig(BaseModel):
 
     name: Optional[str] = None
     limit: int = Field(gt=0)
-    categories: List[str] = Field(min_length=1)
+    categories: List[str] = Field(default_factory=list)
+    # Alternative match key: the profile that classified/scored the item.
+    # A category match always takes priority over a profile match.
+    profiles: List[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _require_categories_or_profiles(self) -> "CategoryGroupConfig":
+        if not self.categories and not self.profiles:
+            raise ValueError("a category group needs at least one category or profile")
+        return self
 
 
 class ProfileSettingsConfig(BaseModel):
@@ -596,6 +605,9 @@ class DigestConfig(BaseModel):
     # Eligible items that didn't make the main digest are shown as brief,
     # un-enriched "in brief" entries instead of being dropped outright.
     short_items_limit: Optional[int] = Field(default=None, gt=0)
+    # A category/default group's limit is a soft cap: items scoring at or
+    # above this are always included even past the group's limit.
+    bonus_score_threshold: Optional[float] = Field(default=None, ge=0, le=10)
 
     @field_validator("profile_order")
     @classmethod

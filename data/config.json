@@ -44,7 +44,8 @@
         "url": "https://www.tagesschau.de/xml/rss2/",
         "enabled": true,
         "category": "news-de",
-        "max_items": 50
+        "max_items": 50,
+        "profile": "news-de"
       },
       {
         "name": "Anavem.com",
@@ -442,7 +443,7 @@
         "Rust"
       ],
       "keywords": [],
-      "min_stars": 50,
+      "min_stars": 3,
       "max_items": 30,
       "category": "oss-trending",
       "profile": null
@@ -477,63 +478,76 @@
     "time_window_hours": 24
   },
   "digest": {
-    "max_items": 20,
+    "max_items": null,
     "category_groups": {
-      "aufmacher": {
-        "name": "Top",
-        "limit": 4,
-        "categories": [
-          "news-de"
-        ]
-      },
-      "tech": {
-        "name": "Tech",
-        "limit": 5,
-        "categories": [
-          "tech",
-          "tech-de",
-          "security"
-        ]
-      },
-      "ai": {
-        "name": "KI & Blogs",
-        "limit": 6,
-        "categories": [
-          "ai"
-        ]
-      },
       "oss": {
         "name": "OSS Trending",
-        "limit": 3,
+        "limit": 5,
         "categories": [
           "oss-trending"
         ]
       },
       "stack": {
         "name": "Mein Stack",
-        "limit": 3,
+        "limit": 5,
         "categories": [
           "oss-stack"
+        ]
+      },
+      "ai": {
+        "name": "KI & Blogs",
+        "limit": 5,
+        "categories": [
+          "ai"
+        ]
+      },
+      "news": {
+        "name": "Nachrichten",
+        "limit": 5,
+        "profiles": [
+          "news-de"
+        ]
+      },
+      "tech": {
+        "name": "Tech",
+        "limit": 5,
+        "profiles": [
+          "tech-news"
+        ]
+      },
+      "tech-blog": {
+        "name": "Tech-Blogs",
+        "limit": 5,
+        "profiles": [
+          "tech-blog"
+        ]
+      },
+      "finance": {
+        "name": "Finanzen",
+        "limit": 5,
+        "profiles": [
+          "finance-news"
         ]
       },
       "science": {
         "name": "Forschung",
         "limit": 5,
-        "categories": [
-          "science",
-          "space"
+        "profiles": [
+          "science"
         ]
       }
     },
     "default_group": "vermischtes",
-    "default_group_limit": 3,
+    "default_group_limit": 5,
     "profile_order": [
+      "news-de",
       "tech-news",
       "tech-blog",
       "finance-news",
       "science"
     ],
-    "short_items_limit": 15
+    "short_items_limit": 15,
+    "bonus_score_threshold": 8.0
   },
   "processing": {
     "profiles_dir": "profiles",
@@ -552,7 +566,11 @@
         "topic_dedup": true
       },
       "science": {
-        "threshold": 7.5,
+        "threshold": 5.5,
+        "topic_dedup": true
+      },
+      "news-de": {
+        "threshold": 7.0,
         "topic_dedup": true
       }
     }

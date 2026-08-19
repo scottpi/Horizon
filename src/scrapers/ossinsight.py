@@ -7,6 +7,7 @@ substring (case-insensitive). Without keywords, all trending repos in the
 configured languages flow through.
 """
 
+import logging
 from datetime import datetime, timezone
 from typing import List, Optional
 
@@ -14,6 +15,8 @@ import httpx
 
 from ..models import ContentItem, OSSInsightConfig, SourceType
 from .base import BaseScraper
+
+logger = logging.getLogger(__name__)
 
 
 class OSSInsightScraper(BaseScraper):
@@ -69,7 +72,11 @@ class OSSInsightScraper(BaseScraper):
                 timeout=20.0,
             )
             response.raise_for_status()
-        except httpx.HTTPError:
+        except httpx.HTTPError as e:
+            logger.warning(
+                "OSS Insight request failed for period=%s language=%s: %s",
+                period, language, e,
+            )
             return []
 
         payload = response.json()

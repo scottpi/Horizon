@@ -265,9 +265,15 @@ class DailySummarizer:
         if not items:
             return self._generate_empty_summary(date, total_fetched, labels)
 
+        in_brief_link = (
+            f"[→ {_escape_markdown(labels['in_brief'])}](#in-brief)\n\n"
+            if short_items
+            else ""
+        )
         header = (
             f"# {labels['header']} - {date}\n\n"
             f"> {labels['selected_items'].format(total=total_fetched, selected=len(items))}\n\n"
+            f"{in_brief_link}"
             "---\n\n"
         )
 
@@ -313,6 +319,7 @@ class DailySummarizer:
                 for item in short_items
             ]
             short_section = (
+                '<a id="in-brief"></a>\n'
                 f"## {_escape_markdown(labels['in_brief'])}\n\n"
                 + "\n".join(short_lines)
                 + "\n\n"

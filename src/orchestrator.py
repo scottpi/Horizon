@@ -887,6 +887,7 @@ class HorizonOrchestrator:
         )
 
         category_to_group: Dict[str, str] = {}
+        profile_to_group: Dict[str, str] = {}
         duplicate_categories: List[str] = []
         for group_key, group in groups.items():
             for category in group.categories:
@@ -895,10 +896,19 @@ class HorizonOrchestrator:
                         duplicate_categories.append(category)
                     continue
                 category_to_group[category] = group_key
+            for profile_id in group.profiles:
+                if profile_id in profile_to_group:
+                    if profile_to_group[profile_id] != group_key:
+                        duplicate_categories.append(f"profile:{profile_id}")
+                    continue
+                profile_to_group[profile_id] = group_key
 
         if log:
             for category in sorted(set(duplicate_categories)):
-                first_group = category_to_group[category]
+                first_group = (
+                    category_to_group.get(category)
+                    or profile_to_group.get(category.removeprefix("profile:"))
+                )
                 self.console.print(
                     f"[yellow]Warning: category '{category}' is configured in multiple "
                     f"groups; using '{first_group}'.[/yellow]"
@@ -907,21 +917,44 @@ class HorizonOrchestrator:
         selected: List[tuple[ContentItem, str]] = []
         group_counts: Dict[str, int] = defaultdict(int)
         default_group = digest.default_group
+        bonus_threshold = digest.bonus_score_threshold
 
         for item in sorted_items:
             category = item.metadata.get("category")
-            group_key = (
-                category_to_group.get(category, default_group)
-                if isinstance(category, str)
-                else default_group
+            profile_id = (
+                item.processing.classification.profile if item.processing else None
             )
+            # A category match takes priority; falls back to the profile
+            # that classified the item, then the default group.
+            group_key = default_group
+            if isinstance(category, str) and category in category_to_group:
+                group_key = category_to_group[category]
+            elif profile_id in profile_to_group:
+                group_key = profile_to_group[profile_id]
 
             if group_key in groups:
                 limit = groups[group_key].limit
             else:
                 limit = digest.default_group_limit
 
-            if limit is not None and group_counts[group_key] >= limit:
+            score = (
+                item.processing.analysis.score
+                if item.processing and item.processing.analysis
+                else None
+            )
+            # A group's limit is a soft cap: items scoring at/above the
+            # configured bonus threshold are always included past the limit.
+            over_limit_bonus = (
+                bonus_threshold is not None
+                and score is not None
+                and score >= bonus_threshold
+            )
+
+            if (
+                limit is not None
+                and group_counts[group_key] >= limit
+                and not over_limit_bonus
+            ):
                 continue
 
             selected.append((item, group_key))
