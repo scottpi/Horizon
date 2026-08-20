@@ -685,7 +685,7 @@ class HorizonOrchestrator:
             if not isinstance(group, list) or len(group) < 2:
                 continue
             primary_idx = group[0]
-            if primary_idx < 0 or primary_idx >= len(items):
+            if not isinstance(primary_idx, int) or primary_idx < 0 or primary_idx >= len(items):
                 continue
             primary = items[primary_idx]
             for dup_idx in group[1:]:
