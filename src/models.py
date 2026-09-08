@@ -183,7 +183,7 @@ AI_PROVIDER_DEFAULTS = {
         "base_url": "http://localhost:11434/v1",
     },
     AIProvider.HETZNER: {
-        "model": "Qwen/Qwen3.8-27B",
+        "model": "Qwen3.8-27B",
         "api_key_env": "HETZNER_API_KEY",
         "base_url": "https://inference.hetzner.com/api/v1",
     },
