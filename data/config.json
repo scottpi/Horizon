@@ -322,6 +322,72 @@
         "enabled": true,
         "category": "science",
         "profile": "science"
+      },
+      {
+        "name": "It's FOSS",
+        "url": "https://feed.itsfoss.com/",
+        "enabled": true,
+        "profile": "tech-news",
+        "category": "tech"
+      },
+      {
+        "name": "Science News",
+        "url": "https://www.science.org/rss/news_current.xml",
+        "enabled": true,
+        "profile": "science",
+        "category": "science"
+      },
+      {
+        "name": "Nature",
+        "url": "https://www.nature.com/nature.rss",
+        "enabled": true,
+        "profile": "science",
+        "category": "science"
+      },
+      {
+        "name": "phys.org",
+        "url": "https://phys.org/rss-feed",
+        "enabled": true,
+        "profile": "science",
+        "category": "science"
+      },
+      {
+        "name": "ScienceDaily",
+        "url": "https://www.sciencedaily.com/rss/all.xml",
+        "enabled": true,
+        "profile": "science",
+        "category": "science"
+      },
+      {
+        "name": "faz-wissen",
+        "url": "https://www.faz.net/rss/aktuell/wissen",
+        "enabled": true,
+        "profile": "science",
+        "category": "science"
+      },
+      {
+        "name": "The Economist Finance",
+        "url": "https://www.economist.com/finance-and-economics/rss.xml",
+        "enabled": true,
+        "profile": "finance-news"
+      },
+      {
+        "name": "Handelsblatt",
+        "url": "https://www.handelsblatt.com/content/feed",
+        "enabled": true,
+        "profile": "finance-news"
+      },
+      {
+        "name": "faz-finanzen",
+        "url": "https://www.faz.net/rss/aktuell/finanzen",
+        "enabled": true,
+        "profile": "finance-news"
+      },
+      {
+        "name": "Financial Times",
+        "url": "https://www.ft.com/rss/home/international",
+        "enabled": true,
+        "profile": "finance-news"
       }
     ],
     "reddit": {
