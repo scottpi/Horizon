@@ -130,6 +130,7 @@ class AIProvider(str, Enum):
     MINIMAX = "minimax"
     DEEPSEEK = "deepseek"
     OLLAMA = "ollama"
+    HETZNER = "hetzner"
 
 
 # Provider-specific defaults used by setup and provider-chain expansion.
@@ -180,6 +181,11 @@ AI_PROVIDER_DEFAULTS = {
         "model": "llama3.1",
         "api_key_env": "",
         "base_url": "http://localhost:11434/v1",
+    },
+    AIProvider.HETZNER: {
+        "model": "Qwen/Qwen3.8-27B",
+        "api_key_env": "HETZNER_API_KEY",
+        "base_url": "https://inference.hetzner.com/api/v1",
     },
 }
 
