@@ -127,7 +127,10 @@ class AnthropicClient(AIClient):
 
         api_key = _resolve_api_key(config)
 
-        kwargs = {"api_key": api_key}
+        # See OpenAIClient for why: bound the SDK's own timeout/retries so a
+        # slow/unresponsive provider can't compound with our outer tenacity
+        # retry wrapper into multi-hour hangs.
+        kwargs = {"api_key": api_key, "timeout": 90.0, "max_retries": 0}
         if config.base_url:
             kwargs["base_url"] = config.base_url
 
@@ -206,7 +209,12 @@ class OpenAIClient(AIClient):
         fallback = "no_key" if config.provider == AIProvider.OLLAMA else None
         api_key = _resolve_api_key(config, fallback=fallback)
 
-        kwargs = {"api_key": api_key}
+        # The SDK's own defaults (600s timeout, 2 internal retries) can
+        # compound with our own tenacity retry wrapper (see analyzer/enricher)
+        # into multi-hour hangs when a provider is slow/unresponsive rather
+        # than cleanly erroring. Keep a single bounded timeout here and let
+        # the outer retry decorator own the retry/backoff behavior.
+        kwargs = {"api_key": api_key, "timeout": 90.0, "max_retries": 0}
         base_url = self._resolve_base_url(config)
         if base_url:
             kwargs["base_url"] = base_url
