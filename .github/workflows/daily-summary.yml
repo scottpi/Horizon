@@ -37,7 +37,7 @@ jobs:
       - name: Run Horizon
         env:
           # Must match data/config.json: ai.api_key_env
-          HETZNER_API_KEY: ${{ secrets.HETZNER_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           # Built-in token, raises the GitHub API rate limit for the repo_releases sources
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Reddit OAuth app-only auth; anonymous scraping gets 403'd more often
